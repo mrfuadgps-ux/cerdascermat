@@ -3,11 +3,8 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Cerdas Cermat</title>
+  <title>Cerdas Cermat - Dengan Suara</title>
   <script src="https://cdn.tailwindcss.com/3.4.17"></script>
-  <!-- SDK scripts are kept for compatibility, but we use localStorage for cross-tab sync -->
-  <script src="/_sdk/element_sdk.js" onerror="console.log('SDK not loaded, using local fallback')"></script>
-  <script src="/_sdk/data_sdk.js" onerror="console.log('SDK not loaded, using local fallback')"></script>
   <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&amp;family=Poppins:wght@400;600;700&amp;display=swap" rel="stylesheet">
   <style>
     * { font-family: 'Poppins', sans-serif; }
@@ -69,50 +66,69 @@
       -webkit-appearance: none;
       margin: 0;
     }
+
+    /* Tombol kontrol suara */
+    .sound-toggle {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      z-index: 1000;
+      background: rgba(0,0,0,0.5);
+      backdrop-filter: blur(5px);
+      padding: 10px;
+      border-radius: 50px;
+      border: 1px solid rgba(255,255,255,0.2);
+    }
   </style>
 </head>
 <body class="h-full gradient-bg text-white overflow-auto">
+  <!-- Tombol toggle suara -->
+  <div class="sound-toggle flex items-center gap-2">
+    <span class="text-sm">🔊 Suara</span>
+    <button id="sound-toggle-btn" onclick="window.toggleSound()" class="w-12 h-6 rounded-full bg-gray-600 relative transition-colors duration-300">
+      <span id="sound-toggle-dot" class="absolute top-1 left-1 w-4 h-4 rounded-full bg-white transition-transform duration-300"></span>
+    </button>
+  </div>
+
   <!-- Landing Screen -->
   <div id="landing-screen" class="h-full flex flex-col items-center justify-center p-8">
-    <img src="https://pelitaglobalmandiri.sch.id/wp-content/uploads/2025/05/cropped-LOGO-PGM-KOTAK.webp" alt="Logo" class="h-24 mb-8" loading="lazy" onerror="console.error('Logo failed to load:', this.src); this.style.display='none';">
+    <img src="https://pelitaglobalmandiri.sch.id/wp-content/uploads/2025/05/cropped-LOGO-PGM-KOTAK.webp" alt="Logo" class="h-24 mb-8" loading="lazy" onerror="this.style.display='none';">
     <div class="text-center max-w-2xl flex-1 flex flex-col items-center justify-center">
       <div class="mb-8">
         <h1 id="main-title" class="title-font text-6xl md:text-8xl text-white tracking-wider mb-4">CERDAS CERMAT</h1>
       </div>
       <div class="flex flex-col sm:flex-row gap-4 justify-center mt-12">
-        <button onclick="openOperator()" class="px-8 py-4 bg-indigo-600 hover:bg-indigo-700 rounded-xl font-semibold text-lg transition-all transform hover:scale-105 flex items-center justify-center gap-3"> 
+        <button onclick="window.openOperator()" class="px-8 py-4 bg-indigo-600 hover:bg-indigo-700 rounded-xl font-semibold text-lg transition-all transform hover:scale-105 flex items-center justify-center gap-3"> 
           <span>⚙️</span> Panel Operator 
         </button> 
-        <button onclick="openDisplayInNewTab()" class="px-8 py-4 bg-emerald-600 hover:bg-emerald-700 rounded-xl font-semibold text-lg transition-all transform hover:scale-105 flex items-center justify-center gap-3"> 
+        <button onclick="window.openDisplayInNewTab()" class="px-8 py-4 bg-emerald-600 hover:bg-emerald-700 rounded-xl font-semibold text-lg transition-all transform hover:scale-105 flex items-center justify-center gap-3"> 
           <span>📺</span> Layar Peserta (Tab Baru) 
         </button>
       </div>
     </div>
-    <p class="text-indigo-400 text-xs mb-4">By. Mr. Fu (Modified: Opens display in new tab)</p>
+    <p class="text-indigo-400 text-xs mb-4">By. Mr. Fu + Suara</p>
   </div>
 
   <!-- Operator Screen -->
   <div id="operator-screen" class="hidden h-full flex flex-col p-4 md:p-6 overflow-auto">
     <div class="flex items-center justify-between mb-6">
-      <button onclick="backToLanding()" class="px-4 py-2 bg-white/10 hover:bg-white/20 rounded-lg transition flex items-center gap-2"> 
+      <button onclick="window.backToLanding()" class="px-4 py-2 bg-white/10 hover:bg-white/20 rounded-lg transition flex items-center gap-2"> 
         <span>←</span> Kembali 
       </button>
       <h2 class="title-font text-2xl md:text-3xl tracking-wider">PANEL OPERATOR</h2>
-      <button onclick="resetAllScores()" class="px-4 py-2 bg-red-600/50 hover:bg-red-600 rounded-lg transition text-sm"> Reset Skor </button>
+      <button onclick="window.resetAllScores()" class="px-4 py-2 bg-red-600/50 hover:bg-red-600 rounded-lg transition text-sm"> Reset Skor </button>
     </div>
-    <div id="operator-teams" class="grid grid-cols-1 md:grid-cols-2 gap-4 flex-1"><!-- Teams will be rendered here -->
-    </div>
+    <div id="operator-teams" class="grid grid-cols-1 md:grid-cols-2 gap-4 flex-1"></div>
   </div>
 
-  <!-- Display Screen (Now can be shown directly in the same window or in a new tab) -->
+  <!-- Display Screen -->
   <div id="display-screen" class="hidden h-full flex flex-col p-6 md:p-10 overflow-auto">
-    <button onclick="backToLanding()" class="absolute top-4 left-4 px-3 py-1 bg-white/10 hover:bg-white/20 rounded-lg transition text-sm opacity-50 hover:opacity-100"> ← Kembali </button>
+    <button onclick="window.backToLanding()" class="absolute top-4 left-4 px-3 py-1 bg-white/10 hover:bg-white/20 rounded-lg transition text-sm opacity-50 hover:opacity-100"> ← Kembali </button>
     <div class="text-center mb-8">
       <h1 id="display-title" class="title-font text-4xl md:text-6xl tracking-wider mb-2">CERDAS CERMAT</h1>
       <div class="w-32 h-1 bg-indigo-500 mx-auto rounded-full"></div>
     </div>
-    <div id="display-teams" class="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6 flex-1 max-w-6xl mx-auto w-full"><!-- Display teams will be rendered here -->
-    </div>
+    <div id="display-teams" class="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6 flex-1 max-w-6xl mx-auto w-full"></div>
     <div id="winner-banner" class="hidden mt-6 text-center">
       <div class="inline-block px-8 py-4 bg-gradient-to-r from-yellow-500 to-amber-500 rounded-2xl">
         <p class="text-sm font-semibold text-yellow-900">🏆 PEMIMPIN SEMENTARA</p>
@@ -123,21 +139,7 @@
 
   <script>
     (function() {
-      // ==================== CROSS-TAB SYNC SETUP ====================
-      // We'll use localStorage as the source of truth for sync.
-      // Any change in scores or names will be saved to localStorage and broadcasted via storage event.
-      
-      // Default configuration
-      const defaultConfig = {
-        competition_title: 'CERDAS CERMAT',
-        primary_color: '#1e1b4b',
-        secondary_color: '#6366f1',
-        text_color: '#ffffff',
-        accent_color: '#22c55e',
-        card_color: '#312e81'
-      };
-
-      // Default teams data
+      // ==================== DATA DAN STATE ====================
       const defaultTeams = [
         { team_id: '1', team_name: 'TIM A', score: 0 },
         { team_id: '2', team_name: 'TIM B', score: 0 },
@@ -145,99 +147,162 @@
         { team_id: '4', team_name: 'TIM D', score: 0 }
       ];
 
-      // Current state
       let teams = [];
       let currentScreen = 'landing';
+      const STORAGE_KEY = 'cerdas_cermat_teams_v2';
       
-      // Local storage keys
-      const STORAGE_KEY = 'cerdas_cermat_teams';
-      
-      // Function to load from localStorage
-      function loadTeamsFromStorage() {
+      // ==================== FITUR SUARA ====================
+      let soundEnabled = true;
+      let speechSynthesis = window.speechSynthesis;
+      let utterance = null;
+
+      // Inisialisasi status suara dari localStorage
+      try {
+        const savedSound = localStorage.getItem('cerdas_cermat_sound');
+        if (savedSound !== null) {
+          soundEnabled = savedSound === 'true';
+        }
+      } catch (e) {
+        console.log('Gagal baca status suara');
+      }
+
+      // Update tampilan toggle suara
+      function updateSoundToggleUI() {
+        const btn = document.getElementById('sound-toggle-btn');
+        const dot = document.getElementById('sound-toggle-dot');
+        if (btn && dot) {
+          if (soundEnabled) {
+            btn.classList.remove('bg-gray-600');
+            btn.classList.add('bg-green-500');
+            dot.style.transform = 'translateX(24px)';
+          } else {
+            btn.classList.remove('bg-green-500');
+            btn.classList.add('bg-gray-600');
+            dot.style.transform = 'translateX(0)';
+          }
+        }
+      }
+
+      // Fungsi global untuk toggle suara
+      window.toggleSound = function() {
+        soundEnabled = !soundEnabled;
+        localStorage.setItem('cerdas_cermat_sound', soundEnabled);
+        updateSoundToggleUI();
+        
+        // Kasih feedback suara kalau diaktifkan
+        if (soundEnabled) {
+          speak('Suara diaktifkan');
+        }
+      };
+
+      // Fungsi untuk berbicara
+      function speak(text, volume = 1) {
+        if (!soundEnabled) return;
+        
+        // Hentikan ucapan yang sedang berlangsung
+        if (speechSynthesis.speaking) {
+          speechSynthesis.cancel();
+        }
+        
+        utterance = new SpeechSynthesisUtterance(text);
+        utterance.lang = 'id-ID'; // Bahasa Indonesia
+        utterance.volume = volume;
+        utterance.rate = 1; // Kecepatan normal
+        utterance.pitch = 1; // Nada normal
+        
+        // Coba gunakan suara Indonesia jika ada
+        const voices = speechSynthesis.getVoices();
+        const indonesianVoice = voices.find(voice => voice.lang.includes('id'));
+        if (indonesianVoice) {
+          utterance.voice = indonesianVoice;
+        }
+        
+        speechSynthesis.speak(utterance);
+      }
+
+      // ==================== FUNGSI LOCALSTORAGE ====================
+      function loadTeams() {
         const stored = localStorage.getItem(STORAGE_KEY);
         if (stored) {
           try {
             const parsed = JSON.parse(stored);
-            // Ensure structure matches default (in case of missing fields)
             teams = defaultTeams.map(def => {
               const found = parsed.find(t => t.team_id === def.team_id);
               return found ? { ...def, ...found } : { ...def };
             });
           } catch (e) {
-            console.error('Failed to parse stored teams', e);
+            console.error('Gagal parse localStorage:', e);
             teams = defaultTeams.map(t => ({ ...t }));
           }
         } else {
           teams = defaultTeams.map(t => ({ ...t }));
         }
       }
-      
-      // Save to localStorage and trigger storage event (already automatic, but we call manually for same-tab updates)
-      function saveTeamsToStorage() {
+
+      function saveTeams() {
         localStorage.setItem(STORAGE_KEY, JSON.stringify(teams));
-        // No need to manually dispatch, but we'll call a sync function to refresh UI if needed
       }
-      
-      // Load initial data
-      loadTeamsFromStorage();
-      
-      // Listen to storage events from other tabs
+
+      // Load awal
+      loadTeams();
+
+      // ==================== LISTENER STORAGE (sinkron antar tab) ====================
       window.addEventListener('storage', function(event) {
         if (event.key === STORAGE_KEY) {
-          // Reload teams from storage
-          loadTeamsFromStorage();
-          // Re-render current screen if it's operator or display
-          if (currentScreen === 'operator') {
-            renderOperatorScreen();
-          } else if (currentScreen === 'display') {
-            renderDisplayScreen();
-          }
+          loadTeams();
+          if (currentScreen === 'operator') renderOperatorScreen();
+          if (currentScreen === 'display') renderDisplayScreen();
         }
       });
-      
-      // ==================== SCREEN NAVIGATION ====================
-      function showScreen(screenName) {
+
+      // ==================== NAVIGASI ====================
+      window.openOperator = function() {
         document.getElementById('landing-screen').classList.add('hidden');
         document.getElementById('operator-screen').classList.add('hidden');
         document.getElementById('display-screen').classList.add('hidden');
-        document.getElementById(`${screenName}-screen`).classList.remove('hidden');
-        currentScreen = screenName;
         
-        // If showing display, render it
-        if (screenName === 'display') {
-          renderDisplayScreen();
-        } else if (screenName === 'operator') {
-          renderOperatorScreen();
-        }
-      }
+        document.getElementById('operator-screen').classList.remove('hidden');
+        currentScreen = 'operator';
+        renderOperatorScreen();
+        
+        speak('Panel operator dibuka');
+      };
 
-      function openOperator() {
-        showScreen('operator');
-      }
-
-      function openDisplayInNewTab() {
-        // Open a new tab with the same URL, but with a hash to indicate we want display mode
+      window.openDisplayInNewTab = function() {
         const url = new URL(window.location.href);
-        url.hash = '#display'; // Use hash to signal display mode
+        url.hash = '#display';
         window.open(url.toString(), '_blank');
-      }
+      };
 
-      function backToLanding() {
-        showScreen('landing');
-      }
-      
-      // Check on load if we should start in display mode (when opened from new tab with hash)
+      window.backToLanding = function() {
+        document.getElementById('landing-screen').classList.remove('hidden');
+        document.getElementById('operator-screen').classList.add('hidden');
+        document.getElementById('display-screen').classList.add('hidden');
+        currentScreen = 'landing';
+        
+        if (window.location.hash) {
+          history.replaceState(null, document.title, window.location.pathname);
+        }
+      };
+
+      // ==================== CEK INITIAL SCREEN ====================
       function checkInitialScreen() {
         if (window.location.hash === '#display') {
-          // Remove the hash to avoid issues, but go to display
           history.replaceState(null, document.title, window.location.pathname + window.location.search);
-          showScreen('display');
+          
+          document.getElementById('landing-screen').classList.add('hidden');
+          document.getElementById('operator-screen').classList.add('hidden');
+          document.getElementById('display-screen').classList.remove('hidden');
+          currentScreen = 'display';
+          renderDisplayScreen();
         }
       }
-      
-      // ==================== RENDERING ====================
+
+      // ==================== RENDER FUNCTIONS ====================
       function renderOperatorScreen() {
         const container = document.getElementById('operator-teams');
+        if (!container) return;
+        
         container.innerHTML = teams.map((team, index) => `
           <div class="team-card card-gradient rounded-2xl p-5" data-team-id="${team.team_id}">
             <div class="flex items-center gap-3 mb-4">
@@ -247,7 +312,7 @@
               <input 
                 type="text" 
                 value="${team.team_name}" 
-                onchange="updateTeamName('${team.team_id}', this.value)"
+                onchange="window.updateTeamName('${team.team_id}', this.value)"
                 class="flex-1 bg-white/10 border border-white/20 rounded-lg px-4 py-2 text-xl font-semibold focus:outline-none focus:border-indigo-400"
               />
             </div>
@@ -258,16 +323,16 @@
             </div>
             
             <div class="grid grid-cols-4 gap-2 mb-3">
-              <button onclick="changeScore('${team.team_id}', 100)" class="btn-plus py-3 rounded-lg font-bold hover:opacity-90 transition transform active:scale-95">
+              <button onclick="window.changeScore('${team.team_id}', 100)" class="btn-plus py-3 rounded-lg font-bold hover:opacity-90 transition transform active:scale-95">
                 +100
               </button>
-              <button onclick="changeScore('${team.team_id}', 50)" class="btn-plus py-3 rounded-lg font-bold hover:opacity-90 transition transform active:scale-95">
+              <button onclick="window.changeScore('${team.team_id}', 50)" class="btn-plus py-3 rounded-lg font-bold hover:opacity-90 transition transform active:scale-95">
                 +50
               </button>
-              <button onclick="changeScore('${team.team_id}', -50)" class="btn-minus py-3 rounded-lg font-bold hover:opacity-90 transition transform active:scale-95">
+              <button onclick="window.changeScore('${team.team_id}', -50)" class="btn-minus py-3 rounded-lg font-bold hover:opacity-90 transition transform active:scale-95">
                 -50
               </button>
-              <button onclick="changeScore('${team.team_id}', -100)" class="btn-minus py-3 rounded-lg font-bold hover:opacity-90 transition transform active:scale-95">
+              <button onclick="window.changeScore('${team.team_id}', -100)" class="btn-minus py-3 rounded-lg font-bold hover:opacity-90 transition transform active:scale-95">
                 -100
               </button>
             </div>
@@ -279,7 +344,7 @@
                 placeholder="Skor custom"
                 class="flex-1 bg-white/10 border border-white/20 rounded-lg px-3 py-2 text-center focus:outline-none focus:border-indigo-400"
               />
-              <button onclick="addCustomScore('${team.team_id}')" class="btn-custom px-4 py-2 rounded-lg font-semibold hover:opacity-90 transition">
+              <button onclick="window.addCustomScore('${team.team_id}')" class="btn-custom px-4 py-2 rounded-lg font-semibold hover:opacity-90 transition">
                 Tambah
               </button>
             </div>
@@ -289,11 +354,13 @@
 
       function renderDisplayScreen() {
         const container = document.getElementById('display-teams');
+        if (!container) return;
+        
         const sortedTeams = [...teams].sort((a, b) => b.score - a.score);
         const highestScore = sortedTeams[0]?.score || 0;
         const hasWinner = highestScore > 0 && sortedTeams.filter(t => t.score === highestScore).length === 1;
 
-        container.innerHTML = teams.map((team, index) => {
+        container.innerHTML = teams.map((team) => {
           const isWinner = hasWinner && team.score === highestScore;
           const rank = sortedTeams.findIndex(t => t.team_id === team.team_id) + 1;
           
@@ -307,7 +374,6 @@
           `;
         }).join('');
 
-        // Update winner banner
         const winnerBanner = document.getElementById('winner-banner');
         const winnerName = document.getElementById('winner-name');
         
@@ -319,22 +385,39 @@
         }
       }
 
-      // ==================== SCORE MANAGEMENT ====================
-      window.changeScore = async function(teamId, amount) {
+      // ==================== FUNGSI SKOR DENGAN SUARA ====================
+      window.changeScore = function(teamId, amount) {
         const team = teams.find(t => t.team_id === teamId);
         if (!team) return;
 
-        const newScore = team.score + amount;
+        const oldScore = team.score;
+        const newScore = oldScore + amount;
         team.score = newScore;
 
-        // Animate score change
+        // === SUARA: "Tim A mendapatkan skor 100, total skor sekarang 200" ===
+        const action = amount > 0 ? 'mendapatkan skor' : 'kehilangan skor';
+        const absAmount = Math.abs(amount);
+        const teamName = team.team_name;
+        
+        // Buat kalimat suara
+        let soundText = '';
+        if (amount > 0) {
+          soundText = `${teamName} mendapatkan skor ${absAmount}, total skor sekarang ${newScore}`;
+        } else {
+          soundText = `${teamName} kehilangan skor ${absAmount}, total skor sekarang ${newScore}`;
+        }
+        
+        // Panggil fungsi speak
+        speak(soundText);
+
+        // Animasi
         const scoreEl = document.getElementById(`score-${teamId}`);
         const displayScoreEl = document.getElementById(`display-score-${teamId}`);
         
         if (scoreEl) {
           scoreEl.textContent = newScore;
           scoreEl.classList.remove('score-up', 'score-down');
-          void scoreEl.offsetWidth; // Trigger reflow
+          void scoreEl.offsetWidth;
           scoreEl.classList.add(amount > 0 ? 'score-up' : 'score-down');
         }
 
@@ -345,13 +428,11 @@
           displayScoreEl.classList.add(amount > 0 ? 'score-up' : 'score-down');
         }
 
-        // Save to localStorage
-        saveTeamsToStorage();
+        // Simpan
+        saveTeams();
         
-        // Re-render display if we're on display screen to update rankings
         if (currentScreen === 'display') {
-          // Use timeout to let animation finish before re-render (optional)
-          setTimeout(() => renderDisplayScreen(), 500);
+          setTimeout(() => renderDisplayScreen(), 400);
         }
       };
 
@@ -368,72 +449,56 @@
         const team = teams.find(t => t.team_id === teamId);
         if (!team) return;
         
+        const oldName = team.team_name;
         team.team_name = newName || `TIM ${teamId}`;
-        saveTeamsToStorage();
+        saveTeams();
         
-        // If on display screen, re-render to update name
+        // Suara untuk perubahan nama
+        if (oldName !== team.team_name) {
+          speak(`Nama tim diubah menjadi ${team.team_name}`);
+        }
+        
         if (currentScreen === 'display') {
           renderDisplayScreen();
         }
       };
 
       window.resetAllScores = function() {
-        // Show inline confirmation
-        const confirmReset = document.createElement('div');
-        confirmReset.className = 'fixed inset-0 bg-black/70 flex items-center justify-center z-50';
-        confirmReset.innerHTML = `
-          <div class="bg-indigo-900 p-6 rounded-2xl text-center max-w-sm mx-4">
-            <div class="text-4xl mb-4">⚠️</div>
-            <h3 class="text-xl font-bold mb-2">Reset Semua Skor?</h3>
-            <p class="text-indigo-300 mb-6">Semua skor akan dikembalikan ke 0</p>
-            <div class="flex gap-3 justify-center">
-              <button id="cancel-reset" class="px-6 py-2 bg-white/20 hover:bg-white/30 rounded-lg transition">Batal</button>
-              <button id="confirm-reset" class="px-6 py-2 bg-red-600 hover:bg-red-700 rounded-lg transition">Ya, Reset</button>
-            </div>
-          </div>
-        `;
-        document.body.appendChild(confirmReset);
-
-        document.getElementById('cancel-reset').onclick = () => confirmReset.remove();
-        document.getElementById('confirm-reset').onclick = () => {
-          teams.forEach(t => t.score = 0);
-          saveTeamsToStorage();
-          renderCurrentScreen();
-          confirmReset.remove();
-        };
+        if (!confirm('Reset semua skor ke 0?')) return;
+        
+        teams.forEach(t => t.score = 0);
+        saveTeams();
+        
+        speak('Semua skor direset ke nol');
+        
+        if (currentScreen === 'operator') renderOperatorScreen();
+        if (currentScreen === 'display') renderDisplayScreen();
       };
 
-      function renderCurrentScreen() {
-        if (currentScreen === 'operator') {
-          renderOperatorScreen();
-        } else if (currentScreen === 'display') {
-          renderDisplayScreen();
+      // ==================== INIT ====================
+      function initialize() {
+        // Set title
+        document.getElementById('main-title').textContent = 'CERDAS CERMAT';
+        document.getElementById('display-title').textContent = 'CERDAS CERMAT';
+        
+        // Update toggle suara
+        updateSoundToggleUI();
+        
+        // Cek apakah perlu langsung display
+        checkInitialScreen();
+        
+        // Memuat voice untuk speech synthesis (biar siap)
+        if (speechSynthesis) {
+          speechSynthesis.getVoices();
         }
       }
 
-      // ==================== INITIALIZATION ====================
-      function initializeApp() {
-        // Set title
-        document.getElementById('main-title').textContent = defaultConfig.competition_title;
-        document.getElementById('display-title').textContent = defaultConfig.competition_title;
-        
-        // Check if we need to show display directly
-        checkInitialScreen();
+      if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', initialize);
+      } else {
+        initialize();
       }
 
-      // Override SDK functions to not cause errors, but we don't need them
-      window.elementSdk = {
-        init: () => {},
-        setConfig: () => {}
-      };
-      window.dataSdk = {
-        init: () => ({ isOk: true }),
-        create: () => ({ isOk: true }),
-        update: () => ({ isOk: true })
-      };
-
-      // Start app
-      initializeApp();
     })();
   </script>
 </body>
