@@ -1,0 +1,423 @@
+<!doctype html>
+<html lang="id" class="h-full">
+ <head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Cerdas Cermat</title>
+  <script src="https://cdn.tailwindcss.com/3.4.17"></script>
+  <script src="/_sdk/element_sdk.js"></script>
+  <script src="/_sdk/data_sdk.js"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&amp;family=Poppins:wght@400;600;700&amp;display=swap" rel="stylesheet">
+  <style>
+    * { font-family: 'Poppins', sans-serif; }
+    .title-font { font-family: 'Bebas Neue', sans-serif; }
+    
+    @keyframes scoreUp {
+      0% { transform: scale(1); }
+      50% { transform: scale(1.2); color: #22c55e; }
+      100% { transform: scale(1); }
+    }
+    
+    @keyframes scoreDown {
+      0% { transform: scale(1); }
+      50% { transform: scale(1.2); color: #ef4444; }
+      100% { transform: scale(1); }
+    }
+    
+    @keyframes pulse-glow {
+      0%, 100% { box-shadow: 0 0 20px rgba(99, 102, 241, 0.4); }
+      50% { box-shadow: 0 0 40px rgba(99, 102, 241, 0.8); }
+    }
+    
+    .score-up { animation: scoreUp 0.5s ease-out; }
+    .score-down { animation: scoreDown 0.5s ease-out; }
+    .winner-glow { animation: pulse-glow 2s infinite; }
+    
+    .gradient-bg {
+      background: linear-gradient(135deg, #1e1b4b 0%, #312e81 50%, #1e1b4b 100%);
+    }
+    
+    .card-gradient {
+      background: linear-gradient(180deg, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0.05) 100%);
+    }
+    
+    .btn-plus {
+      background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%);
+    }
+    
+    .btn-minus {
+      background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+    }
+    
+    .btn-custom {
+      background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%);
+    }
+
+    .team-card {
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(255,255,255,0.1);
+    }
+
+    .display-card {
+      background: linear-gradient(180deg, rgba(99,102,241,0.2) 0%, rgba(99,102,241,0.05) 100%);
+      border: 2px solid rgba(99,102,241,0.3);
+    }
+
+    input[type="number"]::-webkit-inner-spin-button,
+    input[type="number"]::-webkit-outer-spin-button {
+      -webkit-appearance: none;
+      margin: 0;
+    }
+  </style>
+  <style>body { box-sizing: border-box; }</style>
+ </head>
+ <body class="h-full gradient-bg text-white overflow-auto"><!-- Landing Screen -->
+  <div id="landing-screen" class="h-full flex flex-col items-center justify-center p-8"><img src="https://pelitaglobalmandiri.sch.id/wp-content/uploads/2025/05/cropped-LOGO-PGM-KOTAK.webp" alt="Logo" class="h-24 mb-8" loading="lazy" onerror="console.error('Logo failed to load:', this.src); this.style.display='none';">
+   <div class="text-center max-w-2xl flex-1 flex flex-col items-center justify-center">
+    <div class="mb-8">
+     <h1 id="main-title" class="title-font text-6xl md:text-8xl text-white tracking-wider mb-4">CERDAS CERMAT</h1>
+    </div>
+    <div class="flex flex-col sm:flex-row gap-4 justify-center mt-12"><button onclick="openOperator()" class="px-8 py-4 bg-indigo-600 hover:bg-indigo-700 rounded-xl font-semibold text-lg transition-all transform hover:scale-105 flex items-center justify-center gap-3"> <span>⚙️</span> Panel Operator </button> <button onclick="openDisplay()" class="px-8 py-4 bg-emerald-600 hover:bg-emerald-700 rounded-xl font-semibold text-lg transition-all transform hover:scale-105 flex items-center justify-center gap-3"> <span>📺</span> Layar Peserta </button>
+    </div>
+   </div>
+   <p class="text-indigo-400 text-xs mb-4">By. Mr. Fu</p>
+  </div><!-- Operator Screen -->
+  <div id="operator-screen" class="hidden h-full flex flex-col p-4 md:p-6 overflow-auto">
+   <div class="flex items-center justify-between mb-6"><button onclick="backToLanding()" class="px-4 py-2 bg-white/10 hover:bg-white/20 rounded-lg transition flex items-center gap-2"> <span>←</span> Kembali </button>
+    <h2 class="title-font text-2xl md:text-3xl tracking-wider">PANEL OPERATOR</h2><button onclick="resetAllScores()" class="px-4 py-2 bg-red-600/50 hover:bg-red-600 rounded-lg transition text-sm"> Reset Skor </button>
+   </div>
+   <div id="operator-teams" class="grid grid-cols-1 md:grid-cols-2 gap-4 flex-1"><!-- Teams will be rendered here -->
+   </div>
+  </div><!-- Display Screen -->
+  <div id="display-screen" class="hidden h-full flex flex-col p-6 md:p-10 overflow-auto"><button onclick="backToLanding()" class="absolute top-4 left-4 px-3 py-1 bg-white/10 hover:bg-white/20 rounded-lg transition text-sm opacity-50 hover:opacity-100"> ← Kembali </button>
+   <div class="text-center mb-8">
+    <h1 id="display-title" class="title-font text-4xl md:text-6xl tracking-wider mb-2">CERDAS CERMAT</h1>
+    <div class="w-32 h-1 bg-indigo-500 mx-auto rounded-full"></div>
+   </div>
+   <div id="display-teams" class="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6 flex-1 max-w-6xl mx-auto w-full"><!-- Display teams will be rendered here -->
+   </div>
+   <div id="winner-banner" class="hidden mt-6 text-center">
+    <div class="inline-block px-8 py-4 bg-gradient-to-r from-yellow-500 to-amber-500 rounded-2xl">
+     <p class="text-sm font-semibold text-yellow-900">🏆 PEMIMPIN SEMENTARA</p>
+     <p id="winner-name" class="title-font text-3xl text-white"></p>
+    </div>
+   </div>
+  </div>
+  <script>
+    // Default configuration
+    const defaultConfig = {
+      competition_title: 'CERDAS CERMAT',
+      primary_color: '#1e1b4b',
+      secondary_color: '#6366f1',
+      text_color: '#ffffff',
+      accent_color: '#22c55e',
+      card_color: '#312e81'
+    };
+
+    // Default teams data
+    const defaultTeams = [
+      { team_id: '1', team_name: 'TIM A', score: 0 },
+      { team_id: '2', team_name: 'TIM B', score: 0 },
+      { team_id: '3', team_name: 'TIM C', score: 0 },
+      { team_id: '4', team_name: 'TIM D', score: 0 }
+    ];
+
+    // Current state
+    let teams = [...defaultTeams];
+    let currentScreen = 'landing';
+    let isInitialized = false;
+
+    // Data handler for SDK
+    const dataHandler = {
+      onDataChanged(data) {
+        if (data && data.length > 0) {
+          // Merge saved data with defaults
+          teams = defaultTeams.map(defaultTeam => {
+            const savedTeam = data.find(t => t.team_id === defaultTeam.team_id);
+            return savedTeam ? { ...defaultTeam, ...savedTeam } : defaultTeam;
+          });
+        } else {
+          teams = [...defaultTeams];
+        }
+        renderCurrentScreen();
+      }
+    };
+
+    // Initialize SDKs
+    async function initializeApp() {
+      // Initialize Element SDK
+      if (window.elementSdk) {
+        window.elementSdk.init({
+          defaultConfig,
+          onConfigChange: async (config) => {
+            const title = config.competition_title || defaultConfig.competition_title;
+            const mainTitle = document.getElementById('main-title');
+            const displayTitle = document.getElementById('display-title');
+            if (mainTitle) mainTitle.textContent = title;
+            if (displayTitle) displayTitle.textContent = title;
+          },
+          mapToCapabilities: (config) => ({
+            recolorables: [
+              {
+                get: () => config.primary_color || defaultConfig.primary_color,
+                set: (v) => window.elementSdk.setConfig({ primary_color: v })
+              },
+              {
+                get: () => config.secondary_color || defaultConfig.secondary_color,
+                set: (v) => window.elementSdk.setConfig({ secondary_color: v })
+              },
+              {
+                get: () => config.text_color || defaultConfig.text_color,
+                set: (v) => window.elementSdk.setConfig({ text_color: v })
+              },
+              {
+                get: () => config.accent_color || defaultConfig.accent_color,
+                set: (v) => window.elementSdk.setConfig({ accent_color: v })
+              },
+              {
+                get: () => config.card_color || defaultConfig.card_color,
+                set: (v) => window.elementSdk.setConfig({ card_color: v })
+              }
+            ],
+            borderables: [],
+            fontEditable: undefined,
+            fontSizeable: undefined
+          }),
+          mapToEditPanelValues: (config) => new Map([
+            ['competition_title', config.competition_title || defaultConfig.competition_title]
+          ])
+        });
+      }
+
+      // Initialize Data SDK
+      if (window.dataSdk) {
+        const result = await window.dataSdk.init(dataHandler);
+        if (result.isOk) {
+          isInitialized = true;
+        }
+      } else {
+        renderCurrentScreen();
+      }
+    }
+
+    // Screen navigation
+    function showScreen(screenName) {
+      document.getElementById('landing-screen').classList.add('hidden');
+      document.getElementById('operator-screen').classList.add('hidden');
+      document.getElementById('display-screen').classList.add('hidden');
+      document.getElementById(`${screenName}-screen`).classList.remove('hidden');
+      currentScreen = screenName;
+    }
+
+    function openOperator() {
+      showScreen('operator');
+      renderOperatorScreen();
+    }
+
+    function openDisplay() {
+      showScreen('display');
+      renderDisplayScreen();
+    }
+
+    function backToLanding() {
+      showScreen('landing');
+    }
+
+    function renderCurrentScreen() {
+      if (currentScreen === 'operator') {
+        renderOperatorScreen();
+      } else if (currentScreen === 'display') {
+        renderDisplayScreen();
+      }
+    }
+
+    // Render operator screen
+    function renderOperatorScreen() {
+      const container = document.getElementById('operator-teams');
+      container.innerHTML = teams.map((team, index) => `
+        <div class="team-card card-gradient rounded-2xl p-5" data-team-id="${team.team_id}">
+          <div class="flex items-center gap-3 mb-4">
+            <div class="w-12 h-12 rounded-xl bg-indigo-600 flex items-center justify-center text-2xl font-bold">
+              ${index + 1}
+            </div>
+            <input 
+              type="text" 
+              value="${team.team_name}" 
+              onchange="updateTeamName('${team.team_id}', this.value)"
+              class="flex-1 bg-white/10 border border-white/20 rounded-lg px-4 py-2 text-xl font-semibold focus:outline-none focus:border-indigo-400"
+            />
+          </div>
+          
+          <div class="text-center mb-4">
+            <div class="text-5xl font-bold title-font" id="score-${team.team_id}">${team.score}</div>
+            <div class="text-indigo-300 text-sm">SKOR</div>
+          </div>
+          
+          <div class="grid grid-cols-4 gap-2 mb-3">
+            <button onclick="changeScore('${team.team_id}', 100)" class="btn-plus py-3 rounded-lg font-bold hover:opacity-90 transition transform active:scale-95">
+              +100
+            </button>
+            <button onclick="changeScore('${team.team_id}', 50)" class="btn-plus py-3 rounded-lg font-bold hover:opacity-90 transition transform active:scale-95">
+              +50
+            </button>
+            <button onclick="changeScore('${team.team_id}', -50)" class="btn-minus py-3 rounded-lg font-bold hover:opacity-90 transition transform active:scale-95">
+              -50
+            </button>
+            <button onclick="changeScore('${team.team_id}', -100)" class="btn-minus py-3 rounded-lg font-bold hover:opacity-90 transition transform active:scale-95">
+              -100
+            </button>
+          </div>
+          
+          <div class="flex gap-2">
+            <input 
+              type="number" 
+              id="custom-${team.team_id}" 
+              placeholder="Skor custom"
+              class="flex-1 bg-white/10 border border-white/20 rounded-lg px-3 py-2 text-center focus:outline-none focus:border-indigo-400"
+            />
+            <button onclick="addCustomScore('${team.team_id}')" class="btn-custom px-4 py-2 rounded-lg font-semibold hover:opacity-90 transition">
+              Tambah
+            </button>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    // Render display screen
+    function renderDisplayScreen() {
+      const container = document.getElementById('display-teams');
+      const sortedTeams = [...teams].sort((a, b) => b.score - a.score);
+      const highestScore = sortedTeams[0]?.score || 0;
+      const hasWinner = highestScore > 0 && sortedTeams.filter(t => t.score === highestScore).length === 1;
+
+      container.innerHTML = teams.map((team, index) => {
+        const isWinner = hasWinner && team.score === highestScore;
+        const rank = sortedTeams.findIndex(t => t.team_id === team.team_id) + 1;
+        
+        return `
+          <div class="display-card rounded-3xl p-6 flex flex-col items-center justify-center text-center ${isWinner ? 'winner-glow' : ''}" data-display-id="${team.team_id}">
+            ${isWinner ? '<div class="text-4xl mb-2">🏆</div>' : `<div class="text-2xl mb-2 opacity-50">#${rank}</div>`}
+            <div class="text-xl md:text-2xl font-semibold mb-4 text-indigo-200">${team.team_name}</div>
+            <div class="text-5xl md:text-7xl font-bold title-font" id="display-score-${team.team_id}">${team.score}</div>
+            <div class="text-indigo-400 text-sm mt-2">POIN</div>
+          </div>
+        `;
+      }).join('');
+
+      // Update winner banner
+      const winnerBanner = document.getElementById('winner-banner');
+      const winnerName = document.getElementById('winner-name');
+      
+      if (hasWinner) {
+        winnerBanner.classList.remove('hidden');
+        winnerName.textContent = sortedTeams[0].team_name;
+      } else {
+        winnerBanner.classList.add('hidden');
+      }
+    }
+
+    // Score management
+    async function changeScore(teamId, amount) {
+      const team = teams.find(t => t.team_id === teamId);
+      if (!team) return;
+
+      const newScore = team.score + amount;
+      team.score = newScore;
+
+      // Animate score change
+      const scoreEl = document.getElementById(`score-${teamId}`);
+      const displayScoreEl = document.getElementById(`display-score-${teamId}`);
+      
+      if (scoreEl) {
+        scoreEl.textContent = newScore;
+        scoreEl.classList.remove('score-up', 'score-down');
+        void scoreEl.offsetWidth; // Trigger reflow
+        scoreEl.classList.add(amount > 0 ? 'score-up' : 'score-down');
+      }
+
+      if (displayScoreEl) {
+        displayScoreEl.textContent = newScore;
+        displayScoreEl.classList.remove('score-up', 'score-down');
+        void displayScoreEl.offsetWidth;
+        displayScoreEl.classList.add(amount > 0 ? 'score-up' : 'score-down');
+      }
+
+      // Save to Data SDK
+      await saveTeam(team);
+      
+      // Re-render display to update rankings
+      if (currentScreen === 'display') {
+        setTimeout(() => renderDisplayScreen(), 500);
+      }
+    }
+
+    async function addCustomScore(teamId) {
+      const input = document.getElementById(`custom-${teamId}`);
+      const amount = parseInt(input.value) || 0;
+      if (amount !== 0) {
+        await changeScore(teamId, amount);
+        input.value = '';
+      }
+    }
+
+    async function updateTeamName(teamId, newName) {
+      const team = teams.find(t => t.team_id === teamId);
+      if (!team) return;
+      
+      team.team_name = newName || `TIM ${teamId}`;
+      await saveTeam(team);
+    }
+
+    async function saveTeam(team) {
+      if (!window.dataSdk || !isInitialized) return;
+
+      if (team.__backendId) {
+        const result = await window.dataSdk.update(team);
+        if (!result.isOk) {
+          console.error('Failed to update team:', result.error);
+        }
+      } else {
+        const result = await window.dataSdk.create({
+          team_id: team.team_id,
+          team_name: team.team_name,
+          score: team.score
+        });
+        if (!result.isOk) {
+          console.error('Failed to save team:', result.error);
+        }
+      }
+    }
+
+    async function resetAllScores() {
+      // Show inline confirmation
+      const confirmReset = document.createElement('div');
+      confirmReset.className = 'fixed inset-0 bg-black/70 flex items-center justify-center z-50';
+      confirmReset.innerHTML = `
+        <div class="bg-indigo-900 p-6 rounded-2xl text-center max-w-sm mx-4">
+          <div class="text-4xl mb-4">⚠️</div>
+          <h3 class="text-xl font-bold mb-2">Reset Semua Skor?</h3>
+          <p class="text-indigo-300 mb-6">Semua skor akan dikembalikan ke 0</p>
+          <div class="flex gap-3 justify-center">
+            <button id="cancel-reset" class="px-6 py-2 bg-white/20 hover:bg-white/30 rounded-lg transition">Batal</button>
+            <button id="confirm-reset" class="px-6 py-2 bg-red-600 hover:bg-red-700 rounded-lg transition">Ya, Reset</button>
+          </div>
+        </div>
+      `;
+      document.body.appendChild(confirmReset);
+
+      document.getElementById('cancel-reset').onclick = () => confirmReset.remove();
+      document.getElementById('confirm-reset').onclick = async () => {
+        for (const team of teams) {
+          team.score = 0;
+          await saveTeam(team);
+        }
+        renderCurrentScreen();
+        confirmReset.remove();
+      };
+    }
+
+    // Initialize app
+    initializeApp();
+  </script>
+ <script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'9daeba4cd6625f2f',t:'MTc3MzI3NTgxOS4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</html>
